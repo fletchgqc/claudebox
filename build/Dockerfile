@@ -35,6 +35,15 @@ RUN ARCH=$(dpkg --print-architecture) && \
     dpkg -i /tmp/git-delta_${DELTA_VERSION}_${ARCH}.deb && \
     rm /tmp/git-delta_${DELTA_VERSION}_${ARCH}.deb
 
+RUN ARCH=$(dpkg --print-architecture) && \
+    GLAB_VERSION=$(curl -sL "https://gitlab.com/api/v4/projects/34675721/releases/permalink/latest" | sed -n 's/.*"tag_name":"v\?\([^"]*\)".*/\1/p') && \
+    echo "Installing glab version ${GLAB_VERSION} for ${ARCH}" && \
+    wget -O /tmp/glab.deb \
+        "https://gitlab.com/gitlab-org/cli/-/releases/v${GLAB_VERSION}/downloads/glab_${GLAB_VERSION}_linux_${ARCH}.deb" && \
+    dpkg -i /tmp/glab.deb || apt-get install -f -y && \
+    rm /tmp/glab.deb && \
+    glab --version
+
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
